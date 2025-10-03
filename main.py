@@ -4,13 +4,18 @@ from fastapi import FastAPI, Query, Request
 from starlette.middleware.cors import CORSMiddleware
 
 # Initialize the FastAPI app
-app = FastAPI()
+app = FastAPI(
+    title="Student API",
+    description="API to fetch student details with optional class filtering",
+    version="1.0.0"
+)
 
-# Enable CORS to allow requests from any origin
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["GET"]
+    allow_methods=["GET"],
+    allow_headers=["*"]
 )
 
 @app.middleware("http")
@@ -19,20 +24,22 @@ async def add_pna_header(request: Request, call_next):
     response.headers["Access-Control-Allow-Private-Network"] = "true"
     return response
 
-# Load the student data from the CSV file into a pandas DataFrame on startup
+# Load the student data from CSV (safe load with fillna)
 try:
-    students_df = pd.read_csv("q-fastapi(1).csv")
+    students_df = pd.read_csv("q-fastapi(1).csv").fillna("")
 except FileNotFoundError:
-    # Create a dummy dataframe if the file is not found, to allow the app to start
+    # fallback empty dataframe if CSV missing
     students_df = pd.DataFrame(columns=["studentId", "class"])
 
 @app.get("/api")
 def get_students(class_filter: Optional[List[str]] = Query(None, alias="class")):
     """
     Serves student data.
-    - If no 'class' query parameter is provided, returns all students.
-    - If 'class' query parameters are provided, returns students belonging
-      to any of the specified classes.
+
+    - No `class` query param → returns all students.
+    - With one or more `class` params → returns students
+      belonging to those classes.
+    Example: /api?class=1A&class=2B
     """
     if not class_filter:
         filtered_df = students_df
