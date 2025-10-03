@@ -21,7 +21,7 @@ async def add_pna_header(request: Request, call_next):
 
 # Load the student data from the CSV file into a pandas DataFrame on startup
 try:
-    students_df = pd.read_csv("q-fastapi.csv")
+    students_df = pd.read_csv("q-fastapi(1).csv")
 except FileNotFoundError:
     # Create a dummy dataframe if the file is not found, to allow the app to start
     students_df = pd.DataFrame(columns=["studentId", "class"])
