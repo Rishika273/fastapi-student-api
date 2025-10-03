@@ -16,7 +16,7 @@ app.add_middleware(
 )
 
 # Load the CSV file
-df = pd.read_csv("q-fastapi(1).csv")
+df = pd.read_csv("q-fastapi.csv")
 
 # Convert DataFrame to the expected format
 def get_students_data(class_filters=None):
